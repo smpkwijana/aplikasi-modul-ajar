@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Modul Ajar Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Markdown Styles */
+        .markdown-body h1 { @apply text-3xl font-bold mb-4 mt-6 text-gray-800 border-b pb-2; }
+        .markdown-body h2 { @apply text-2xl font-semibold mb-3 mt-5 text-gray-700; }
+        .markdown-body h3 { @apply text-xl font-medium mb-2 mt-4 text-gray-700; }
+        .markdown-body p { @apply mb-3 text-gray-600 leading-relaxed; }
+        .markdown-body ul { @apply list-disc pl-5 mb-4 text-gray-600; }
+        .markdown-body ol { @apply list-decimal pl-5 mb-4 text-gray-600; }
+        .markdown-body li { @apply mb-1; }
+        .markdown-body strong { @apply font-semibold text-gray-800; }
+        .markdown-body blockquote { @apply border-l-4 border-indigo-500 pl-4 italic text-gray-600 my-4; }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex flex-col font-sans">
+
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-md z-10 flex-shrink-0">
+        <div class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-book-open text-2xl"></i>
+                <h1 class="text-xl font-bold tracking-wide">AI Modul Ajar Generator</h1>
+            </div>
+            <div class="text-sm opacity-80">Kurikulum Merdeka</div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        
+        <!-- Left Panel: Input Form -->
+        <div class="w-full lg:w-1/3 bg-white border-r border-gray-200 p-6 overflow-y-auto shadow-sm z-0">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="fas fa-pen-to-square text-indigo-500"></i> Data Informasi Modul
+            </h2>
+            
+            <form id="modulForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Penyusun</label>
+                        <input type="text" id="penyusun" required placeholder="Contoh: Budi, S.Pd" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Institusi</label>
+                        <input type="text" id="institusi" required placeholder="Contoh: SDN 1 Jakarta" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tahun Ajaran</label>
+                        <input type="text" id="tahunAjaran" required placeholder="Contoh: 2026/2027" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Jenjang Sekolah</label>
+                        <input type="text" id="jenjang" required placeholder="Contoh: SD / MI" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Topik/Materi Pokok</label>
+                    <input type="text" id="topik" required placeholder="Contoh: Tata Surya" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-shadow">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mata Pelajaran</label>
+                        <input type="text" id="mapel" required placeholder="Contoh: IPAS" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fase / Kelas</label>
+                        <input type="text" id="fase" required placeholder="Contoh: Fase C / Kelas 6" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Alokasi Waktu</label>
+                    <input type="text" id="waktu" required placeholder="Contoh: 2 x 35 Menit (1 Pertemuan)" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Capaian Pembelajaran (CP)</label>
+                    <textarea id="cp" required rows="3" placeholder="Masukkan Capaian Pembelajaran di sini..." 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tujuan Pembelajaran (TP)</label>
+                    <textarea id="tp" required rows="3" placeholder="Masukkan Tujuan Pembelajaran spesifik di sini..." 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-shadow resize-none"></textarea>
+                </div>
+
+                <button type="submit" id="generateBtn" 
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-md transition-colors flex items-center justify-center gap-2 shadow-sm">
+                    <i class="fas fa-wand-magic-sparkles"></i> Generate Modul Ajar
+                </button>
+            </form>
+
+            <div id="errorMsg" class="mt-4 text-red-600 text-sm hidden p-3 bg-red-50 rounded-md border border-red-200"></div>
+        </div>
+
+        <!-- Right Panel: Output -->
+        <div class="w-full lg:w-2/3 bg-gray-50 flex flex-col h-full relative">
+            
+            <!-- Toolbar -->
+            <div class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center shadow-sm flex-shrink-0">
+                <span class="text-gray-600 font-medium text-sm">Preview Dokumen</span>
+                <div class="flex gap-2">
+                    <button id="copyBtn" class="hidden text-sm bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-1.5 px-3 rounded shadow-sm transition-colors flex items-center gap-2">
+                        <i class="far fa-copy"></i> Salin Teks
+                    </button>
+                    <button id="exportBtn" class="hidden text-sm bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 py-1.5 px-3 rounded shadow-sm transition-colors flex items-center gap-2">
+                        <i class="fas fa-file-word"></i> Export ke Word (.doc)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-1 overflow-y-auto p-6 lg:p-8">
+                
+                <!-- Empty State -->
+                <div id="emptyState" class="h-full flex flex-col items-center justify-center text-gray-400">
+                    <i class="fas fa-file-signature text-6xl mb-4 opacity-20"></i>
+                    <p class="text-lg text-center">Isi form di sebelah kiri lalu klik Generate<br>untuk membuat Modul Ajar.</p>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="hidden h-full flex flex-col items-center justify-center text-indigo-600">
+                    <i class="fas fa-circle-notch fa-spin text-4xl mb-3"></i>
+                    <p class="text-sm font-medium animate-pulse">AI sedang menyusun modul ajar Anda...</p>
+                </div>
+
+                <!-- Generated Output -->
+                <div id="outputArea" class="hidden bg-white p-8 rounded-lg shadow-sm border border-gray-200 min-h-full">
+                    <div id="markdownContent" class="markdown-body"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // MASUKKAN API KEY ANDA DI SINI JIKA DIJALANKAN DI WEB SENDIRI
+        const apiKey = "AQ.Ab8RN6L9FYD9nRYLVPjTOCNlunCxgCapeAHoWwWaDQ-QgNgLBQ"; 
+        let generatedRawText = ""; 
+
+        const form = document.getElementById('modulForm');
+        const generateBtn = document.getElementById('generateBtn');
+        const emptyState = document.getElementById('emptyState');
+        const loadingState = document.getElementById('loadingState');
+        const outputArea = document.getElementById('outputArea');
+        const markdownContent = document.getElementById('markdownContent');
+        const copyBtn = document.getElementById('copyBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const errorMsg = document.getElementById('errorMsg');
+
+        // Fungsi untuk menangani pemanggilan API 
+        async function callGeminiAPI(prompt, retries = 5) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const systemInstruction = `Anda adalah seorang asisten pendidik profesional yang ahli dalam menyusun Modul Ajar Kurikulum Merdeka. 
+Tugas Anda adalah membuat dokumen modul ajar yang terstruktur, praktis, dan kreatif berdasarkan input dari pengguna.
+Gunakan Bahasa Indonesia yang baku dan format output menggunakan Markdown yang rapi.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+
+            const delays = [1000, 2000, 4000, 8000, 16000];
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delays[i]));
+                }
+            }
+        }
+
+        // Event Listener Form Submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Ambil data form
+            const penyusun = document.getElementById('penyusun').value;
+            const institusi = document.getElementById('institusi').value;
+            const tahunAjaran = document.getElementById('tahunAjaran').value;
+            const jenjang = document.getElementById('jenjang').value;
+            const topik = document.getElementById('topik').value;
+            const mapel = document.getElementById('mapel').value;
+            const fase = document.getElementById('fase').value;
+            const waktu = document.getElementById('waktu').value;
+            const cp = document.getElementById('cp').value;
+            const tp = document.getElementById('tp').value;
+
+            // Siapkan UI untuk loading
+            errorMsg.classList.add('hidden');
+            emptyState.classList.add('hidden');
+            outputArea.classList.add('hidden');
+            copyBtn.classList.add('hidden');
+            exportBtn.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+            generateBtn.classList.replace('bg-indigo-600', 'bg-indigo-400');
+
+            // Susun Prompt
+            const prompt = `
+Buatkan Modul Ajar Kurikulum Merdeka yang lengkap berdasarkan data berikut:
+
+- Nama Penyusun: ${penyusun}
+- Institusi: ${institusi}
+- Tahun Ajaran: ${tahunAjaran}
+- Jenjang Sekolah: ${jenjang}
+- Topik/Materi: ${topik}
+- Mata Pelajaran: ${mapel}
+- Fase/Kelas: ${fase}
+- Alokasi Waktu: ${waktu}
+- Capaian Pembelajaran (CP): ${cp}
+- Tujuan Pembelajaran (TP): ${tp}
+
+INSTRUKSI PENTING:
+Modul ajar HARUS mengikuti struktur 3 bagian utama di bawah ini dengan persis. Kembangkan isinya agar relevan, kreatif, dan aplikatif di kelas.
+
+Struktur yang harus diikuti:
+
+# MODUL AJAR: ${topik}
+
+## 1. Informasi Umum
+* **Identitas Modul:** Penyusun: ${penyusun}, Institusi: ${institusi}, Tahun Ajaran: ${tahunAjaran}, Jenjang: ${jenjang}, Fase/Kelas: ${fase}, Mata Pelajaran: ${mapel}, Alokasi Waktu: ${waktu}.
+* **Kompetensi Awal:** (Tuliskan pengetahuan dasar yang idealnya dimiliki siswa sebelum materi ini, buat berdasarkan CP).
+* **Profil Pelajar Pancasila:** (Sebutkan 2-3 dimensi yang relevan, misal: Bernalar Kritis, Gotong Royong).
+* **Sarana & Prasarana:** (Sebutkan alat, bahan, atau media yang mendukung).
+* **Target Peserta Didik:** (Misalnya: Peserta didik reguler/tipikal).
+
+## 2. Komponen Inti
+* **Tujuan Pembelajaran (TP):** (Gunakan TP yang diberikan, jabarkan indikator keberhasilannya).
+* **Pemahaman Bermakna:** (Jelaskan apa manfaat materi ini di dunia nyata bagi siswa).
+* **Pertanyaan Pemantik:** (Buat 2-3 pertanyaan menarik untuk membuka pelajaran).
+* **Kegiatan Pembelajaran:** (Buat langkah-langkah detail untuk pertemuan yang terdiri dari:)
+    * **Kegiatan Pendahuluan** (Apersepsi, motivasi, dsb)
+    * **Kegiatan Inti** (Langkah-langkah eksplorasi, aktivitas siswa)
+    * **Kegiatan Penutup** (Refleksi, kesimpulan, tindak lanjut)
+
+## 3. Lampiran
+* **Lembar Kerja Peserta Didik (LKPD):** (Buat format singkat atau contoh 2-3 soal tugas untuk siswa).
+* **Bahan Bacaan Guru & Siswa:** (Buat rangkuman singkat materi pendukung).
+* **Glosarium:** (Buat minimal 3 istilah penting beserta artinya).
+* **Daftar Pustaka:** (Buat 1-2 referensi yang relevan).
+
+Pastikan menggunakan format Markdown (heading, list, bold) agar mudah dibaca.
+`;
+
+            try {
+                const result = await callGeminiAPI(prompt);
+                
+                if (result) {
+                    generatedRawText = result;
+                    markdownContent.innerHTML = marked.parse(result);
+                    
+                    loadingState.classList.add('hidden');
+                    outputArea.classList.remove('hidden');
+                    copyBtn.classList.remove('hidden');
+                    exportBtn.classList.remove('hidden');
+                } else {
+                    throw new Error("Tidak ada respons dari AI.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                errorMsg.textContent = "Gagal membuat modul ajar. Pastikan API Key diisi jika Anda menjalankannya di luar env ini. (Error: " + error.message + ")";
+                errorMsg.classList.remove('hidden');
+                loadingState.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate Modul Ajar';
+                generateBtn.classList.replace('bg-indigo-400', 'bg-indigo-600');
+            }
+        });
+
+        // Fitur Salin Teks
+        copyBtn.addEventListener('click', () => {
+            if (generatedRawText) {
+                const textArea = document.createElement("textarea");
+                textArea.value = generatedRawText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const originalHTML = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '<i class="fas fa-check text-green-500"></i> Tersalin!';
+                    copyBtn.classList.add('border-green-500');
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalHTML;
+                        copyBtn.classList.remove('border-green-500');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Gagal menyalin', err);
+                    alert('Gagal menyalin teks.');
+                }
+                document.body.removeChild(textArea);
+            }
+        });
+
+        // Fitur Export ke Word (Kompatibel dengan Google Docs)
+        exportBtn.addEventListener('click', () => {
+            if (!generatedRawText) return;
+            
+            const htmlContent = markdownContent.innerHTML;
+            
+            // Tambahkan CSS khusus Word & Google Docs agar format rapi
+            const preHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+                <meta charset='utf-8'>
+                <title>Modul Ajar</title>
+                <style>
+                    body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #000; }
+                    h1 { font-size: 18pt; font-weight: bold; text-align: center; margin-bottom: 20px; }
+                    h2 { font-size: 14pt; font-weight: bold; margin-top: 20px; }
+                    h3 { font-size: 12pt; font-weight: bold; margin-top: 15px; }
+                    p, li { font-size: 11pt; margin-bottom: 10px; }
+                    ul, ol { margin-left: 20px; }
+                    strong { font-weight: bold; }
+                </style>
+            </head>
+            <body>`;
+            const postHtml = "</body></html>";
+            const html = preHtml + htmlContent + postHtml;
+
+            const url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html);
+            
+            const downloadLink = document.createElement("a");
+            document.body.appendChild(downloadLink);
+            
+            // Buat nama file berdasarkan Topik
+            const topik = document.getElementById('topik').value || "Modul";
+            const filename = `Modul_Ajar_${topik.replace(/\s+/g, '_')}.doc`;
+
+            downloadLink.href = url;
+            downloadLink.download = filename;
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        });
+    </script>
+</body>
+</html>

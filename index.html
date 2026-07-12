@@ -29,7 +29,7 @@
 <body class="bg-gray-50 h-screen flex flex-col font-sans">
 
     <!-- Header -->
-    <header class="bg-indigo-600 text-white shadow-md z-10 flex-shrink-0">
+    <header class="bg-indigo-600 text-white shadow-md z-10">
         <div class="container mx-auto px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <i class="fas fa-book-open text-2xl"></i>
@@ -125,7 +125,7 @@
         <div class="w-full lg:w-2/3 bg-gray-50 flex flex-col h-full relative">
             
             <!-- Toolbar -->
-            <div class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center shadow-sm flex-shrink-0">
+            <div class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center shadow-sm">
                 <span class="text-gray-600 font-medium text-sm">Preview Dokumen</span>
                 <div class="flex gap-2">
                     <button id="copyBtn" class="hidden text-sm bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-1.5 px-3 rounded shadow-sm transition-colors flex items-center gap-2">
@@ -143,7 +143,7 @@
                 <!-- Empty State -->
                 <div id="emptyState" class="h-full flex flex-col items-center justify-center text-gray-400">
                     <i class="fas fa-file-signature text-6xl mb-4 opacity-20"></i>
-                    <p class="text-lg text-center">Isi form di sebelah kiri lalu klik Generate<br>untuk membuat Modul Ajar.</p>
+                    <p class="text-lg">Isi form di sebelah kiri untuk membuat Modul Ajar.</p>
                 </div>
 
                 <!-- Loading State -->
@@ -161,8 +161,8 @@
     </main>
 
     <script>
-        // MASUKKAN API KEY ANDA DI SINI JIKA DIJALANKAN DI WEB SENDIRI
-        const apiKey = "AQ.Ab8RN6IxNyUBJuc0SDdGbiKaaosnB5iVUjIWDS2LB6xE71sPqg"; 
+        // API Key diset menggunakan data yang Anda berikan
+        const apiKey = "AQ.Ab8RN6IxNyUBJuc0SDdGbiKaaosnB5iVUjIWDS2LB6xE71sPqg";
         let generatedRawText = ""; 
 
         const form = document.getElementById('modulForm');
@@ -175,9 +175,9 @@
         const exportBtn = document.getElementById('exportBtn');
         const errorMsg = document.getElementById('errorMsg');
 
-        // Fungsi untuk menangani pemanggilan API 
+        // Fungsi untuk menangani pemanggilan API dengan model gemini-1.5-flash
         async function callGeminiAPI(prompt, retries = 5) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
             
             const systemInstruction = `Anda adalah seorang asisten pendidik profesional yang ahli dalam menyusun Modul Ajar Kurikulum Merdeka. 
 Tugas Anda adalah membuat dokumen modul ajar yang terstruktur, praktis, dan kreatif berdasarkan input dari pengguna.
@@ -215,7 +215,6 @@ Gunakan Bahasa Indonesia yang baku dan format output menggunakan Markdown yang r
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Ambil data form
             const penyusun = document.getElementById('penyusun').value;
             const institusi = document.getElementById('institusi').value;
             const tahunAjaran = document.getElementById('tahunAjaran').value;
@@ -227,7 +226,6 @@ Gunakan Bahasa Indonesia yang baku dan format output menggunakan Markdown yang r
             const cp = document.getElementById('cp').value;
             const tp = document.getElementById('tp').value;
 
-            // Siapkan UI untuk loading
             errorMsg.classList.add('hidden');
             emptyState.classList.add('hidden');
             outputArea.classList.add('hidden');
@@ -238,7 +236,6 @@ Gunakan Bahasa Indonesia yang baku dan format output menggunakan Markdown yang r
             generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
             generateBtn.classList.replace('bg-indigo-600', 'bg-indigo-400');
 
-            // Susun Prompt
             const prompt = `
 Buatkan Modul Ajar Kurikulum Merdeka yang lengkap berdasarkan data berikut:
 
@@ -258,20 +255,20 @@ Modul ajar HARUS mengikuti struktur 3 bagian utama di bawah ini dengan persis. K
 
 Struktur yang harus diikuti:
 
-# MODUL AJAR: ${topik}
+# MODUL AJAR: [Nama Topik]
 
 ## 1. Informasi Umum
-* **Identitas Modul:** Penyusun: ${penyusun}, Institusi: ${institusi}, Tahun Ajaran: ${tahunAjaran}, Jenjang: ${jenjang}, Fase/Kelas: ${fase}, Mata Pelajaran: ${mapel}, Alokasi Waktu: ${waktu}.
+* **Identitas Modul:** (Sebutkan Nama penyusun, institusi, tahun, jenjang, fase/kelas, mata pelajaran, alokasi waktu).
 * **Kompetensi Awal:** (Tuliskan pengetahuan dasar yang idealnya dimiliki siswa sebelum materi ini, buat berdasarkan CP).
 * **Profil Pelajar Pancasila:** (Sebutkan 2-3 dimensi yang relevan, misal: Bernalar Kritis, Gotong Royong).
 * **Sarana & Prasarana:** (Sebutkan alat, bahan, atau media yang mendukung).
 * **Target Peserta Didik:** (Misalnya: Peserta didik reguler/tipikal).
 
 ## 2. Komponen Inti
-* **Tujuan Pembelajaran (TP):** (Gunakan TP yang diberikan, jabarkan indikator keberhasilannya).
+* **Tujuan Pembelajaran (TP):** (Gunakan TP yang diberikan, jika perlu jabarkan sedikit).
 * **Pemahaman Bermakna:** (Jelaskan apa manfaat materi ini di dunia nyata bagi siswa).
 * **Pertanyaan Pemantik:** (Buat 2-3 pertanyaan menarik untuk membuka pelajaran).
-* **Kegiatan Pembelajaran:** (Buat langkah-langkah detail untuk pertemuan yang terdiri dari:)
+* **Kegiatan Pembelajaran:** (Buat langkah-langkah detail untuk 1 pertemuan yang terdiri dari:)
     * **Kegiatan Pendahuluan** (Apersepsi, motivasi, dsb)
     * **Kegiatan Inti** (Langkah-langkah eksplorasi, aktivitas siswa)
     * **Kegiatan Penutup** (Refleksi, kesimpulan, tindak lanjut)
@@ -280,7 +277,7 @@ Struktur yang harus diikuti:
 * **Lembar Kerja Peserta Didik (LKPD):** (Buat format singkat atau contoh 2-3 soal tugas untuk siswa).
 * **Bahan Bacaan Guru & Siswa:** (Buat rangkuman singkat materi pendukung).
 * **Glosarium:** (Buat minimal 3 istilah penting beserta artinya).
-* **Daftar Pustaka:** (Buat 1-2 referensi yang relevan).
+* **Daftar Pustaka:** (Buat 1-2 contoh referensi fiktif yang formatnya benar).
 
 Pastikan menggunakan format Markdown (heading, list, bold) agar mudah dibaca.
 `;
@@ -301,7 +298,7 @@ Pastikan menggunakan format Markdown (heading, list, bold) agar mudah dibaca.
                 }
             } catch (error) {
                 console.error("Error:", error);
-                errorMsg.textContent = "Gagal membuat modul ajar. Pastikan API Key diisi jika Anda menjalankannya di luar env ini. (Error: " + error.message + ")";
+                errorMsg.textContent = "Gagal membuat modul ajar. Pastikan API Key benar. (Error: " + error.message + ")";
                 errorMsg.classList.remove('hidden');
                 loadingState.classList.add('hidden');
                 emptyState.classList.remove('hidden');
@@ -321,6 +318,7 @@ Pastikan menggunakan format Markdown (heading, list, bold) agar mudah dibaca.
                 textArea.select();
                 try {
                     document.execCommand('copy');
+                    
                     const originalHTML = copyBtn.innerHTML;
                     copyBtn.innerHTML = '<i class="fas fa-check text-green-500"></i> Tersalin!';
                     copyBtn.classList.add('border-green-500');
@@ -336,22 +334,21 @@ Pastikan menggunakan format Markdown (heading, list, bold) agar mudah dibaca.
             }
         });
 
-        // Fitur Export ke Word (Kompatibel dengan Google Docs)
+        // Fitur Export ke Word
         exportBtn.addEventListener('click', () => {
             if (!generatedRawText) return;
             
             const htmlContent = markdownContent.innerHTML;
             
-            // Tambahkan CSS khusus Word & Google Docs agar format rapi
             const preHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
             <head>
                 <meta charset='utf-8'>
                 <title>Modul Ajar</title>
                 <style>
                     body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #000; }
-                    h1 { font-size: 18pt; font-weight: bold; text-align: center; margin-bottom: 20px; }
-                    h2 { font-size: 14pt; font-weight: bold; margin-top: 20px; }
-                    h3 { font-size: 12pt; font-weight: bold; margin-top: 15px; }
+                    h1 { font-size: 20pt; font-weight: bold; text-align: center; margin-bottom: 20px; }
+                    h2 { font-size: 16pt; font-weight: bold; margin-top: 20px; }
+                    h3 { font-size: 13pt; font-weight: bold; margin-top: 15px; }
                     p, li { font-size: 11pt; margin-bottom: 10px; }
                     ul, ol { margin-left: 20px; }
                     strong { font-weight: bold; }
@@ -366,7 +363,6 @@ Pastikan menggunakan format Markdown (heading, list, bold) agar mudah dibaca.
             const downloadLink = document.createElement("a");
             document.body.appendChild(downloadLink);
             
-            // Buat nama file berdasarkan Topik
             const topik = document.getElementById('topik').value || "Modul";
             const filename = `Modul_Ajar_${topik.replace(/\s+/g, '_')}.doc`;
 

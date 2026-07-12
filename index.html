@@ -44,6 +44,19 @@
         
         <!-- Left Panel: Input Form -->
         <div class="w-full lg:w-1/3 bg-white border-r border-gray-200 p-6 overflow-y-auto shadow-sm z-0">
+            
+            <!-- Pengaturan API Key -->
+            <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <label class="block text-sm font-semibold text-blue-800 mb-2">
+                    <i class="fas fa-key"></i> Pengaturan API Key Gemini
+                </label>
+                <input type="password" id="apiKeyInput" placeholder="Masukkan API Key di sini..." 
+                    class="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white">
+                <p class="text-xs text-blue-600 mt-2 leading-relaxed">
+                    Dapatkan API Key gratis di <a href="https://aistudio.google.com/app/apikey" target="_blank" class="font-bold underline">Google AI Studio</a>.
+                </p>
+            </div>
+
             <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <i class="fas fa-pen-to-square text-indigo-500"></i> Data Informasi Modul
             </h2>
@@ -113,7 +126,7 @@
                 </div>
 
                 <button type="submit" id="generateBtn" 
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-md transition-colors flex items-center justify-center gap-2 shadow-sm">
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-md transition-colors flex items-center justify-center gap-2 shadow-sm mt-4">
                     <i class="fas fa-wand-magic-sparkles"></i> Generate Modul Ajar
                 </button>
             </form>
@@ -161,11 +174,10 @@
     </main>
 
     <script>
-        // API Key diset menggunakan data yang Anda berikan
-        const apiKey = "AQ.Ab8RN6IxNyUBJuc0SDdGbiKaaosnB5iVUjIWDS2LB6xE71sPqg";
         let generatedRawText = ""; 
 
         const form = document.getElementById('modulForm');
+        const apiKeyInput = document.getElementById('apiKeyInput');
         const generateBtn = document.getElementById('generateBtn');
         const emptyState = document.getElementById('emptyState');
         const loadingState = document.getElementById('loadingState');
@@ -175,9 +187,26 @@
         const exportBtn = document.getElementById('exportBtn');
         const errorMsg = document.getElementById('errorMsg');
 
+        // Muat API Key dari Local Storage jika ada
+        const savedKey = localStorage.getItem('geminiApiKey');
+        if (savedKey) {
+            apiKeyInput.value = savedKey;
+        }
+
+        // Simpan API Key setiap kali diubah
+        apiKeyInput.addEventListener('change', (e) => {
+            localStorage.setItem('geminiApiKey', e.target.value.trim());
+        });
+
         // Fungsi untuk menangani pemanggilan API dengan model gemini-1.5-flash
         async function callGeminiAPI(prompt, retries = 5) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const currentApiKey = apiKeyInput.value.trim();
+            
+            if (!currentApiKey) {
+                throw new Error("Silakan masukkan API Key Gemini Anda terlebih dahulu di bagian atas form.");
+            }
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${currentApiKey}`;
             
             const systemInstruction = `Anda adalah seorang asisten pendidik profesional yang ahli dalam menyusun Modul Ajar Kurikulum Merdeka. 
 Tugas Anda adalah membuat dokumen modul ajar yang terstruktur, praktis, dan kreatif berdasarkan input dari pengguna.
@@ -199,13 +228,16 @@ Gunakan Bahasa Indonesia yang baku dan format output menggunakan Markdown yang r
                     });
 
                     if (!response.ok) {
+                        if (response.status === 401 || response.status === 403) {
+                            throw new Error("Error " + response.status + ": API Key salah, tidak valid, atau dibatasi oleh Google.");
+                        }
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
 
                     const data = await response.json();
                     return data.candidates?.[0]?.content?.parts?.[0]?.text;
                 } catch (error) {
-                    if (i === retries - 1) throw error;
+                    if (i === retries - 1 || error.message.includes("API Key salah")) throw error;
                     await new Promise(resolve => setTimeout(resolve, delays[i]));
                 }
             }
@@ -298,7 +330,7 @@ Pastikan menggunakan format Markdown (heading, list, bold) agar mudah dibaca.
                 }
             } catch (error) {
                 console.error("Error:", error);
-                errorMsg.textContent = "Gagal membuat modul ajar. Pastikan API Key benar. (Error: " + error.message + ")";
+                errorMsg.innerHTML = "<strong>Gagal membuat modul ajar.</strong><br/>" + error.message;
                 errorMsg.classList.remove('hidden');
                 loadingState.classList.add('hidden');
                 emptyState.classList.remove('hidden');
